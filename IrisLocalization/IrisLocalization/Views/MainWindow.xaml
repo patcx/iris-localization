@@ -1,0 +1,57 @@
+﻿<mahApps:MetroWindow x:Class="IrisLocalization.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IrisLocalization"
+        xmlns:mahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:vm="clr-namespace:IrisLocalization.ViewModels"
+        xmlns:converter="clr-namespace:IrisLocalization.Views.Converters"
+        mc:Ignorable="d"
+        Title="IrisLocalization"
+        TitleCaps="False"
+        WindowState="Maximized">
+    <Window.Resources>
+        <vm:MainVM x:Key="mainVm"></vm:MainVM>
+        <converter:BoolToVisibility x:Key="boolToVisibility"></converter:BoolToVisibility>
+    </Window.Resources>
+
+    <Window.DataContext>
+        <StaticResource ResourceKey="mainVm"></StaticResource>
+    </Window.DataContext>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}"></i:InvokeCommandAction>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="{Binding Image}"/>
+            <Image Stretch="Fill" Width="200" Grid.Column="1" Source="{Binding VerticalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+            <Image Stretch="Fill" Height="200" Grid.Row="1" Source="{Binding HorizontalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+        </Grid>
+
+        <StackPanel Grid.Column="1" Margin="10">
+            <Button Command="{Binding LoadImage}" Margin="10" VerticalAlignment="Top" Height="30"  Content="Wczytaj"/>
+            <mahApps:ToggleSwitch IsChecked="{Binding IsDebug}" Margin="10" Content="Tryb debug"></mahApps:ToggleSwitch>
+        </StackPanel>
+
+    </Grid>
+</mahApps:MetroWindow>
