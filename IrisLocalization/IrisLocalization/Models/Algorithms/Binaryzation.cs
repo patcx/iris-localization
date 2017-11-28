@@ -9,21 +9,32 @@ namespace IrisLocalization.Models.Algorithms
 {
     public class Binaryzation : ITransformAlgorithm
     {
-        private int normalization;
+        private float normalization;
+        private int hSkipFrom;
+        private int hSkipTo;
 
-        public Binaryzation(int normalization)
+
+        public Binaryzation(float normalization, int hSkipFrom = -1, int hSkipTo = -1)
         {
             this.normalization = normalization <= 0 ? 1 : normalization;
+            this.hSkipFrom = hSkipFrom;
+            this.hSkipTo = hSkipTo;
         }
 
         public void Transform(Bitmap bmp)
         {
-            var P = 0;
+            float P = 0;
 
             for (int j = 0; j < bmp.Height; j++)
             {
                 for (int i = 0; i < bmp.Width; i++)
                 {
+                    if(hSkipFrom > 0 && hSkipTo > 0)
+                    {
+                        if (hSkipFrom <= i && i <= hSkipTo)
+                            continue;
+                    }
+
                     var pixel = bmp.GetPixel(i, j);
                     P += pixel.R;
                 }

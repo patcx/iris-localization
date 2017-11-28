@@ -34,11 +34,104 @@ namespace IrisLocalization.Models
             imageDebugBitmap = (Bitmap)imageResult.Clone();
             statistics = new ImageStatistics(imageDebugBitmap);
 
-            FindIris();
+            int hMid;
+            int vMid;
+
+            int pupilR = FindPupil(out hMid, out vMid);
+            int irisR = FindIris(hMid, vMid, pupilR);
+
+            imageResult.DrawCircle(hMid, vMid, pupilR);
+            imageResult.DrawCircle(hMid, vMid, irisR);
+
+        }
+
+        int FindIris(int hPupilMid, int vPupilMid, int pupilR)
+        {
+            int clipingRadius = 5 * pupilR;
+            imageDebugBitmap = ClipImage(imageResult, new Rectangle(hPupilMid - clipingRadius, vPupilMid - clipingRadius, 2 * clipingRadius, 2 * clipingRadius));
+            statistics = new ImageStatistics(imageDebugBitmap);
+
+
+            //imageDebugBitmap.ApplyTransform(new HistogramEqualization());
+            imageDebugBitmap.ApplyTransform(new Binaryzation(1, hPupilMid - pupilR, hPupilMid + pupilR));
+
+            int factor = pupilR / 5;
+            imageDebugBitmap.ApplyTransform(new Dilation(factor));
+            imageDebugBitmap.ApplyTransform(new Erosion(factor));
+
+
+            int irisR1 = 0, irisR2 = 0, irisR3 = 0;
+            for(int i=0; i<imageDebugBitmap.Width/2; i++)
+            {
+                if (imageDebugBitmap.GetPixel(i, imageDebugBitmap.Height/2).R != 0)
+                {
+                    imageDebugBitmap.SetPixel(i, imageDebugBitmap.Height / 2, Color.Red);
+                    irisR1++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for (int i = imageDebugBitmap.Width-1; i > imageDebugBitmap.Width / 2; i--)
+            {
+                if (imageDebugBitmap.GetPixel(i, imageDebugBitmap.Height / 2).R != 0)
+                {
+                    imageDebugBitmap.SetPixel(i, imageDebugBitmap.Height / 2, Color.Red);
+                    irisR2++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for (int i = imageDebugBitmap.Height-1; i >= imageDebugBitmap.Height/2; i--)
+            {
+                if (imageDebugBitmap.GetPixel(i, imageDebugBitmap.Height / 2).R != 0)
+                {
+                    imageDebugBitmap.SetPixel(i, imageDebugBitmap.Height / 2, Color.Red);
+                    irisR3++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+
+            UpdateProjections();
+            DrawProjection();
+
+            irisR1 = imageDebugBitmap.Width / 2 - irisR1;
+            irisR2 = imageDebugBitmap.Width / 2 - irisR2;
+            irisR3 = imageDebugBitmap.Width / 2 - irisR3;
+
+            var radiuses = new int[] { irisR1, irisR2, irisR3 };
+            int avg = (int)radiuses.Average();
+
+            radiuses = radiuses.OrderByDescending(x => Math.Abs(x - avg)).Skip(1).ToArray();
+
+            return (int)radiuses.Average();
+        }
+
+        private Bitmap ClipImage(Bitmap bmp, Rectangle rect)
+        {
+            if (rect.X < 0)
+                rect.X = 0;
+            if (rect.Y < 0)
+                rect.Y = 0;
+            if (rect.X + rect.Width > bmp.Width)
+                rect.Width = bmp.Width - rect.X;
+            if (rect.Y + rect.Height > bmp.Height)
+                rect.Height = bmp.Height - rect.Y;
+
+            return bmp.Clone(rect, bmp.PixelFormat);
         }
 
 
-        void FindIris()
+        int FindPupil(out int hMid, out int vMid)
         {
             imageDebugBitmap.ApplyTransform(new Grayscale());
             imageDebugBitmap.ApplyTransform(new Binaryzation(6));
@@ -49,12 +142,12 @@ namespace IrisLocalization.Models
             int vStart;
             int vEnd;
             var height = GetLongestSegment(verticalProjection, out vStart, out vEnd);
-            int vMid = (vStart + vEnd) / 2;
+            vMid = (vStart + vEnd) / 2;
 
             int hStart;
             int hEnd;
             var width = GetLongestSegment(horizontalProjection, out hStart, out hEnd);
-            int hMid = (hStart + hEnd) / 2;
+            hMid = (hStart + hEnd) / 2;
 
             int radius = (height + width) / 4;
 
@@ -72,16 +165,11 @@ namespace IrisLocalization.Models
                 hMid = (hStart + hEnd) / 2;
 
                 radius = (height + width) / 4;
-
-                imageResult.DrawCircle(hMid, vMid, radius);
-
-            }
-            else
-            {
-                imageResult.DrawCircle(hMid, vMid, radius);
             }
 
-            GenerateProjection();
+            DrawProjection();
+
+            return radius;
         }
 
         void UpdateProjections()
@@ -99,7 +187,7 @@ namespace IrisLocalization.Models
 
             for (int i = 0; i < hStart; i++)
             {
-                imageDebugBitmap.DrawLine(i,0,i, imageDebugBitmap.Height-1, Color.White);
+                imageDebugBitmap.DrawLine(i, 0, i, imageDebugBitmap.Height - 1, Color.White);
             }
             for (int i = hEnd; i < imageDebugBitmap.Width; i++)
             {
@@ -107,7 +195,7 @@ namespace IrisLocalization.Models
             }
         }
 
-       
+
 
         void ClearBitmapByProjectionValue(double? vAvg, double? hAvg)
         {
@@ -179,7 +267,7 @@ namespace IrisLocalization.Models
             return max;
         }
 
-        void GenerateProjection()
+        void DrawProjection()
         {
             var vProj = verticalProjection;
             verticalProjectionBitmap = new Bitmap(vProj.Max(), vProj.Length);

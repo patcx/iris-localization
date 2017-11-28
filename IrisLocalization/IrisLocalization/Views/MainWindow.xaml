@@ -43,9 +43,9 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Image Source="{Binding Image}"/>
-            <Image Stretch="Fill" Width="200" Grid.Column="1" Source="{Binding VerticalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
-            <Image Stretch="Fill" Height="200" Grid.Row="1" Source="{Binding HorizontalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+            <Image x:Name="img" Source="{Binding Image}" />
+            <Image Stretch="Fill" Width="200"  Grid.Column="1" Source="{Binding VerticalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+            <Image Stretch="Fill" Height="200"  Grid.Row="1" Source="{Binding HorizontalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
         </Grid>
 
         <StackPanel Grid.Column="1" Margin="10">
