@@ -89,9 +89,9 @@ namespace IrisLocalization.Models
 
             for (int i = imageDebugBitmap.Height-1; i >= imageDebugBitmap.Height/2; i--)
             {
-                if (imageDebugBitmap.GetPixel(i, imageDebugBitmap.Height / 2).R != 0)
+                if (imageDebugBitmap.GetPixel(imageDebugBitmap.Height / 2, i).R != 0)
                 {
-                    imageDebugBitmap.SetPixel(i, imageDebugBitmap.Height / 2, Color.Red);
+                    imageDebugBitmap.SetPixel(imageDebugBitmap.Height / 2, i, Color.Red);
                     irisR3++;
                 }
                 else

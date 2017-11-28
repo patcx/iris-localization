@@ -15,6 +15,7 @@
     <Window.Resources>
         <vm:MainVM x:Key="mainVm"></vm:MainVM>
         <converter:BoolToVisibility x:Key="boolToVisibility"></converter:BoolToVisibility>
+        <converter:BoolToVisibility x:Key="collpasedifTrue" TrueVisibility="Collapsed" FalseVisibility="Visible"></converter:BoolToVisibility>
     </Window.Resources>
 
     <Window.DataContext>
@@ -27,31 +28,33 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="200"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Image x:Name="img" Source="{Binding Image}" />
-            <Image Stretch="Fill" Width="200"  Grid.Column="1" Source="{Binding VerticalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
-            <Image Stretch="Fill" Height="200"  Grid.Row="1" Source="{Binding HorizontalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
-        </Grid>
+        <Grid Visibility="{Binding IsLoading, Converter={StaticResource collpasedifTrue}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="img" Source="{Binding Image}" />
+                <Image Stretch="Fill" Width="200"  Grid.Column="1" Source="{Binding VerticalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+                <Image Stretch="Fill" Height="200"  Grid.Row="1" Source="{Binding HorizontalProjection}" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisibility}}"></Image>
+            </Grid>
+            <mahApps:ProgressRing Grid.RowSpan="2" IsActive="{Binding IsLoading}" Foreground="{DynamicResource AccentColorBrush}"/>
 
         <StackPanel Grid.Column="1" Margin="10">
-            <Button Command="{Binding LoadImage}" Margin="10" VerticalAlignment="Top" Height="30"  Content="Wczytaj"/>
-            <mahApps:ToggleSwitch IsChecked="{Binding IsDebug}" Margin="10" Content="Tryb debug"></mahApps:ToggleSwitch>
-        </StackPanel>
+                <Button Command="{Binding LoadImage}" Margin="10" VerticalAlignment="Top" Height="30"  Content="Wczytaj"/>
+                <mahApps:ToggleSwitch IsChecked="{Binding IsDebug}" Margin="10" Content="Tryb debug"></mahApps:ToggleSwitch>
+            </StackPanel>
 
-    </Grid>
+        </Grid>
+
 </mahApps:MetroWindow>

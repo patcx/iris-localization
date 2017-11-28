@@ -19,6 +19,7 @@ namespace IrisLocalization.ViewModels
         private ImageModel model;
         private bool isDebug;
 
+        public bool IsLoading { get; set; }
         public BitmapImage Image { get; private set; }
         public BitmapImage VerticalProjection { get; private set; }
         public BitmapImage HorizontalProjection { get; private set; }
@@ -65,8 +66,18 @@ namespace IrisLocalization.ViewModels
 
         private void LoadImageFromPath(string path)
         {
-            model = new ImageModel(path);
-            ReloadImage();
+            IsLoading = true;
+            RaisePropertyChanged("IsLoading");
+
+            Task.Run(() =>
+            {
+                model = new ImageModel(path);
+                ReloadImage();
+
+                IsLoading = false;
+                RaisePropertyChanged("IsLoading");
+            });
+           
         }
 
         private void ReloadImage()
